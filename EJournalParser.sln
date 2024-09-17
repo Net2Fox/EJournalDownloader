@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35201.131
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EJournalParser", "EJournalParser\EJournalParser.csproj", "{FFD50FF1-41BC-46B3-967C-97557D8560BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FFD50FF1-41BC-46B3-967C-97557D8560BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFD50FF1-41BC-46B3-967C-97557D8560BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFD50FF1-41BC-46B3-967C-97557D8560BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFD50FF1-41BC-46B3-967C-97557D8560BC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3CC4C16C-12FC-4D7C-93FC-121DA8A8958A}
+	EndGlobalSection
+EndGlobal
