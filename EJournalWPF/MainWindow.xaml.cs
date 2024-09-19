@@ -17,6 +17,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using CefSharp;
+using CefSharp.DevTools.Network;
 
 namespace EJournalWPF
 {
@@ -32,7 +33,6 @@ namespace EJournalWPF
             {
                 if (e.Frame.Url.Contains("https://kip.eljur.ru/?user"))
                 {
-                    MessageBox.Show("Взлом жопы.", "Хихи", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
                     await HandleCookiesAsync();
                 }
             };
@@ -86,9 +86,11 @@ namespace EJournalWPF
                             subDirectory = message["subject"].ToString();
                         }
                         DownloadFile(fileUrl, fileName, subDirectory);
+                        await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.note_read&idsString={message["id"]}", cookies);
                     }
                 }
             }
+            MessageBox.Show("Все файлы успешно скачаны!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
         }
 
         public async Task<string> SendRequestAsync(string url, CookieContainer cookies)
@@ -132,6 +134,7 @@ namespace EJournalWPF
                 }
 
                 byte[] fileBytes = client.DownloadData(fileUrl);
+                
                 File.WriteAllBytes(fileName, fileBytes);
                 //Console.WriteLine($"Файл '{fileName}' успешно скачан.");
             }

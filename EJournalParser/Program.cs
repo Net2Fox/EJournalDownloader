@@ -38,20 +38,16 @@ namespace EJournalParser
             string apiUrl = "https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit=100&offset=0&teacher=21742&status=unread&companion=&minDate=0";
             CookieContainer cookies = new CookieContainer();
 
-            // Разделение куков по строкам
             string[] cookiesArray = rawCookies.Split(new[] { "; " }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Добавление куков в CookieContainer
             foreach (var cookie in cookiesArray)
             {
-                var cookieParts = cookie.Split(new[] { '=' }, 2); // Разделяем только на имя и значение
+                var cookieParts = cookie.Split(new[] { '=' }, 2);
                 if (cookieParts.Length == 2)
                 {
                     var cookieName = cookieParts[0].Trim();
                     var cookieValue = cookieParts[1].Trim();
 
-                    // Здесь предполагаем, что домен и путь известны, их можно задать явно
-                    //cookieContainer.Add(new Cookie(cookieName, cookieValue, "/", "kip.eljur.ru"));
                     cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("cookieName", "cookieValue"));
                 }
             }
