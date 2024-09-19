@@ -33,7 +33,11 @@ https://kip.eljur.ru/journal-api-messages-action?method=messages.get_senders_lis
 ```
 
 Возвращает категории получателей 
+```url
 https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipient_structure
+```
 
 Возвращает список людей в группе
+```url
 https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_3%D0%98%D0%A1%D0%98%D0%9F-122%23%23%23%23%230753a2848830c9e5f25229d379c79c7f&dep=null
+```
