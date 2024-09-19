@@ -5,7 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 
 
@@ -16,12 +18,7 @@ namespace EJournalParser
         static async Task Main(string[] args)
         {
             Program program = new Program();
-            //await program.ProcessMessagesAsync();
-            Console.WriteLine("Введите логин:");
-            string login = Console.ReadLine();
-            Console.WriteLine("Введите пароль:");
-            string password = Console.ReadLine();
-            await program.Authorize(login, password);
+
         }
 
         public async Task<string> SendRequestAsync(string url, CookieContainer cookies)
@@ -33,39 +30,6 @@ namespace EJournalParser
                 HttpResponseMessage response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 return await response.Content.ReadAsStringAsync();
-            }
-        }
-
-        public async Task Authorize(string login, string password)
-        {
-            using (var client = new HttpClient())
-            {
-                // Установка нужных заголовков
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3");
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                // Данные для авторизации
-                var values = new Dictionary<string, string>
-                {
-                    { "username", login },
-                    { "password", password }
-                };
-
-                // Отправка POST-запроса
-                var content = new FormUrlEncodedContent(values);
-                var response = await client.PostAsync("https://kip.eljur.ru/ajaxauthorize", content);
-
-                // Обработка ответа
-                if (response.IsSuccessStatusCode)
-                {
-                    var cookies = response.Headers.GetValues("Set-Cookie");
-                    //Console.WriteLine(cookies.ToList()[0]);
-                    await ProcessMessagesAsync(cookies.ToList()[0]);
-                }
-                else
-                {
-                    Console.WriteLine("Не удалось авторизоваться.");
-                }
             }
         }
 
@@ -91,17 +55,6 @@ namespace EJournalParser
                     cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("cookieName", "cookieValue"));
                 }
             }
-
-            cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("schdomain", "kip"));
-            cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("ej_fp", "691dd8c67f89809c5d2b6cb3fdaadbf5"));
-            cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("ej_fonts", "ccb94da7fe1855fb0b95f714d84e97a9c8cfd283"));
-            //cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("jwt_v_2", "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJlajplbGp1cjpraXAiLCJhdWQiOiJlajpzZXNzbiIsImp0aSI6Ijk5NjgzMGUyMjFlMGI5OTZiMDUyZDE5MjdhOWI0ZTgxIiwibmJmIjoxNzI2NTg4MTM2LCJpYXQiOjE3MjY1ODgxMzYsImV4cCI6MTcyNjY4MTczNiwiZG9tYWluIjoia2lwIiwic2VnbWVudCI6ImVsanVyIiwidWlkIjoyMTc0MiwibXAiOmZhbHNlfQ.LzHnowo-SjzoqMLu6GykKv7ldmylHTClXyf_UghNRwZAP0Yr20iMPM_Mb0lHJIxRS6RxEI_w45iIuAd-Gv8cLu5H_6c3tq6-SFHtzz3VFYfjmdmiUKbhEMvhh-AD_WUYjJv0xm51x321oCKWwfrTQZ5PHpCgp-l9YvI6c32goJPblDeET_5S7iG-bGCGzK6nQ9tlWc1lI196Rdh01blLk7T1SqR1uTO5f_vMWRCeT8PQUqxlv71RyGB4NZvvEG8ol-vg221CfSAsY_rYPlAZhSvZ02nsf94L_dxCgeObORkFbfdlarwRAMg1BUxKG57EIP9Eo0gVu_L7whlwSp2tGg"));
-            cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("ej_id", "57f9ff2a-ded0-4e5a-821a-093773f412fe"));
-            cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("ej_check", "808baa82de9b566d96548cfc7efd6282"));
-            cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("CSRF-TOKEN", "4079fda40aae3937325f9bb3fb819f1a"));
-            cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("ej_id", "85cd4be1-00ee-4b9a-be39-52886d35d07e"));
-            cookies.Add(new Uri("https://kip.eljur.ru"), new Cookie("ej_check", "06a5376c8571e6201e6871d8ff6268fa"));
-
 
             string jsonResponse = await SendRequestAsync(apiUrl, cookies);
             JObject jsonData = JObject.Parse(jsonResponse);
