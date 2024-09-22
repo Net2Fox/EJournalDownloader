@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using EJournalWPF.Model;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -14,78 +16,50 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using CefSharp;
-using CefSharp.DevTools.Network;
-using EJournalWPF.Model;
-using EJournalWPF.Windows;
 
-namespace EJournalWPF
+namespace EJournalWPF.Windows
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для DownloadWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class DownloadWindow : Window
     {
         List<Group> Groups = new List<Group>();
-        
-        public MainWindow()
+
+        public DownloadWindow(List<CefSharp.Cookie> cookies = null)
         {
             InitializeComponent();
-            browser.FrameLoadEnd += async (sender, e) =>
+            if (cookies != null)
             {
-                if (e.Frame.Url.Contains("https://kip.eljur.ru/?user"))
+                Task.Run(async () =>
                 {
-                    await HandleCookiesAsync();
-                }
-            };
-        }
-
-        public async Task HandleCookiesAsync()
-        {
-            var cookieManager = Cef.GetGlobalCookieManager();
-
-            var result = await cookieManager.VisitUrlCookiesAsync("https://kip.eljur.ru/", includeHttpOnly: false);
-            var cookieCount = result.Count;
-
-            await cookieManager.VisitUrlCookiesAsync("https://kip.eljur.ru/", includeHttpOnly: true).ContinueWith(t =>
-            {
-                if (t.Status == TaskStatus.RanToCompletion)
-                {
-                    var cookies = t.Result;
-                    //await ProcessMessagesAsync(cookies);
-                    ShowWindow(cookies);
-                }
-                else
-                {
-                    MessageBox.Show("Увы, что-то не так!");
-                }
-            });
-        }
-
-        public void ShowWindow(List<CefSharp.Cookie> cookies)
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                DownloadWindow downloadWindow = new DownloadWindow(cookies);
-                downloadWindow.Owner = this;
-                downloadWindow.Show();
-                downloadWindow.Focus();
-            });
+                    await ProcessMessagesAsync(cookies);
+                });
+            }
         }
 
         public async Task ProcessMessagesAsync(List<CefSharp.Cookie> cefSharpCookies)
         {
             CookieContainer cookies = new CookieContainer();
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DownloadTextBlock.Text = "Загружаем куки...";
 
+            });
+            
             foreach (var cookie in cefSharpCookies)
             {
                 cookies.Add(new Uri("https://kip.eljur.ru"), new System.Net.Cookie(cookie.Name, cookie.Value));
             }
-            // https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_3%D0%98%D0%A1%D0%98%D0%9F-{номер группы}%23%23%23%23%23{id группы}&dep=null
+
             // Получаем список групп
             JObject recipient_structure = JObject.Parse(await SendRequestAsync("https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipient_structure", cookies));
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DownloadTextBlock.Text = "Получаем список групп...";
+                DownloadBar.Maximum = recipient_structure["structure"].Count();
+            });
             foreach (var structure in recipient_structure["structure"])
             {
                 if (structure["key"].ToObject<string>() == "school")
@@ -97,31 +71,58 @@ namespace EJournalWPF
                             foreach (var group in data["data"])
                             {
                                 Groups.Add(new Group(group["name"].ToObject<string>(), group["key"].ToObject<string>().Split(new[] { "#####" }, StringSplitOptions.RemoveEmptyEntries)[1]));
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    DownloadBar.Value += 1;
+                                });
+                                
                             }
                         }
                     }
                 }
             }
-            MessageBox.Show("Получаем список групп.", "Процесс", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
-
-
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DownloadTextBlock.Text = "Получаем список студентов...";
+                DownloadBar.Value = 0;
+            });
+            
             // Заполняем в группах студентов
             foreach (var group in Groups)
             {
                 JObject user_list = JObject.Parse(await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_{System.Web.HttpUtility.UrlEncode(group.Name)}%23%23%23%23%23{group.Key}&dep=null", cookies));
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    DownloadBar.Value = 0;
+                    DownloadBar.Maximum = user_list["user_list"].Count();
+                });
+                
                 foreach (var student in user_list["user_list"])
                 {
                     group.Students.Add(new Student(student["id"].ToObject<long>(), student["firstname"].ToObject<string>(), student["lastname"].ToObject<string>(), student["middlename"].ToObject<string>()));
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        DownloadBar.Value += 1;
+                    });
+                    
                 }
             }
-            MessageBox.Show("Получаем список студентов.", "Процесс", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
 
-
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DownloadTextBlock.Text = "Получаем список сообщений...";
+                DownloadBar.Value = 0;
+            });
+            
             int limit = 10;
             string apiUrl = $"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset=0&teacher=21742&status=unread&companion=&minDate=0";
             string jsonResponse = await SendRequestAsync(apiUrl, cookies);
             JObject jsonData = JObject.Parse(jsonResponse);
-            MessageBox.Show("Получаем список сообщений.", "Процесс", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DownloadBar.Maximum = jsonData["list"].Count();
+
+            });
             foreach (var message in jsonData["list"])
             {
                 if (message["hasFiles"].ToObject<bool>())
@@ -131,14 +132,20 @@ namespace EJournalWPF
                         string fileUrl = file["url"].ToString();
                         string fileName = file["filename"].ToString();
                         string subDirectory = null;
-                        foreach(var group in Groups)
+                        var group = Groups.Find(g => g.Students.Exists(s => s.Id == message["from_user"].ToObject<long>()));
+                        var student = group.Students.Find(s => s.Id == message["from_user"].ToObject<long>());
+                        if (student != null)
                         {
-                            var student = group.Students.Find(s => s.Id == message["from_user"].ToObject<long>());
-                            if (student != null)
-                            {
-                                subDirectory = $"{group.Name}/";
-                            }
+                            subDirectory = $"{group.Name}/";
                         }
+                        //foreach (var group in Groups)
+                        //{
+                        //    var student = group.Students.Find(s => s.Id == message["from_user"].ToObject<long>());
+                        //    if (student != null)
+                        //    {
+                        //        subDirectory = $"{group.Name}/";
+                        //    }
+                        //}
                         if (message["files"].Count() > 1)
                         {
                             subDirectory = $"{subDirectory}/{message["subject"].ToObject<string>()}, {message["fromUserHuman"].ToObject<string>()}";
@@ -147,8 +154,18 @@ namespace EJournalWPF
                         //await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.note_read&idsString={message["id"]}", cookies);
                     }
                 }
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    DownloadBar.Value += 1;
+
+                });
             }
-            MessageBox.Show("Все файлы успешно скачаны!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                DownloadTextBlock.Text = "Все файлы успешно скачаны!";
+
+            });
+            //MessageBox.Show("Все файлы успешно скачаны!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
         }
 
         public async Task<string> SendRequestAsync(string url, CookieContainer cookies)
@@ -187,12 +204,14 @@ namespace EJournalWPF
 
                 if (File.Exists(fileName))
                 {
+                    //Console.WriteLine($"Файл '{fileName}' уже скачан, пропускаем...");
                     return;
                 }
 
                 byte[] fileBytes = client.DownloadData(fileUrl);
-                
+
                 File.WriteAllBytes(fileName, fileBytes);
+                //Console.WriteLine($"Файл '{fileName}' успешно скачан.");
             }
         }
     }

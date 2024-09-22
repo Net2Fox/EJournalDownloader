@@ -1,0 +1,13 @@
+﻿<Window x:Class="EJournalWPF.Windows.DownloadWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EJournalWPF.Windows"
+        mc:Ignorable="d"
+        Title="Скачивалка" Height="100" Width="600" WindowStartupLocation="CenterOwner">
+    <StackPanel>
+        <TextBlock x:Name="DownloadTextBlock" Text="Тут текст" FontSize="20" HorizontalAlignment="Center"/>
+        <ProgressBar x:Name="DownloadBar" Minimum="0" Height="57"/>
+    </StackPanel>
+</Window>
