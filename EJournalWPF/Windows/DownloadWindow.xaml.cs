@@ -114,7 +114,7 @@ namespace EJournalWPF.Windows
                 DownloadBar.Value = 0;
             });
             
-            int limit = 10;
+            int limit = 150;
             string apiUrl = $"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset=0&teacher=21742&status=unread&companion=&minDate=0";
             string jsonResponse = await SendRequestAsync(apiUrl, cookies);
             JObject jsonData = JObject.Parse(jsonResponse);
@@ -150,8 +150,9 @@ namespace EJournalWPF.Windows
                         {
                             subDirectory = $"{subDirectory}/{message["subject"].ToObject<string>()}, {message["fromUserHuman"].ToObject<string>()}";
                         }
+                        subDirectory = Regex.Replace(subDirectory, @"[<>:""|?*]", string.Empty);
                         DownloadFile(fileUrl, fileName, subDirectory);
-                        //await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.note_read&idsString={message["id"]}", cookies);
+                        await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.note_read&idsString={message["id"]}", cookies);
                     }
                 }
                 Application.Current.Dispatcher.Invoke(() =>
