@@ -136,16 +136,8 @@ namespace EJournalWPF.Windows
                         var student = group.Students.Find(s => s.Id == message["from_user"].ToObject<long>());
                         if (student != null)
                         {
-                            subDirectory = $"{group.Name}/";
+                            subDirectory = $"{group.Name}/{student.LastName}{student.FirtsName.Replace(" ", "")}/";
                         }
-                        //foreach (var group in Groups)
-                        //{
-                        //    var student = group.Students.Find(s => s.Id == message["from_user"].ToObject<long>());
-                        //    if (student != null)
-                        //    {
-                        //        subDirectory = $"{group.Name}/";
-                        //    }
-                        //}
                         if (message["files"].Count() > 1)
                         {
                             subDirectory = $"{subDirectory}/{message["subject"].ToObject<string>()}, {message["fromUserHuman"].ToObject<string>()}";
@@ -166,7 +158,6 @@ namespace EJournalWPF.Windows
                 DownloadTextBlock.Text = "Все файлы успешно скачаны!";
 
             });
-            //MessageBox.Show("Все файлы успешно скачаны!", "Успех", MessageBoxButton.OK, MessageBoxImage.Information, MessageBoxResult.OK, MessageBoxOptions.DefaultDesktopOnly);
         }
 
         public async Task<string> SendRequestAsync(string url, CookieContainer cookies)
@@ -196,7 +187,7 @@ namespace EJournalWPF.Windows
                     {
                         Directory.CreateDirectory($"Работа/{subDirectory}");
                     }
-                    fileName = $"Работа/{subDirectory}/{fileName}";
+                    fileName = $"Работа/{subDirectory}{fileName}";
                 }
                 else
                 {
@@ -205,14 +196,12 @@ namespace EJournalWPF.Windows
 
                 if (File.Exists(fileName))
                 {
-                    //Console.WriteLine($"Файл '{fileName}' уже скачан, пропускаем...");
                     return;
                 }
 
                 byte[] fileBytes = client.DownloadData(fileUrl);
 
                 File.WriteAllBytes(fileName, fileBytes);
-                //Console.WriteLine($"Файл '{fileName}' успешно скачан.");
             }
         }
     }
