@@ -140,7 +140,7 @@ namespace EJournalWPF.Windows
                         }
                         if (message["files"].Count() > 1)
                         {
-                            subDirectory = $"{subDirectory}/{message["subject"].ToObject<string>()}, {message["fromUserHuman"].ToObject<string>()}";
+                            subDirectory = $"{subDirectory}/{message["subject"].ToObject<string>()}";
                         }
                         subDirectory = Regex.Replace(subDirectory, @"[<>:""|?*]", string.Empty);
                         DownloadFile(fileUrl, fileName, subDirectory);
