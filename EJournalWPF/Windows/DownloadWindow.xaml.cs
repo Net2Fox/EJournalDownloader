@@ -136,7 +136,7 @@ namespace EJournalWPF.Windows
                         var student = group.Students.Find(s => s.Id == message["from_user"].ToObject<long>());
                         if (student != null)
                         {
-                            subDirectory = $"{group.Name}/{student.LastName}{student.FirtsName.Replace(" ", "")}";
+                            subDirectory = $"{group.Name}/{student.LastName.Replace(" ", "")} {student.FirtsName.Replace(" ", "")}";
                         }
                         if (message["files"].Count() > 1)
                         {
