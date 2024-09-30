@@ -8,7 +8,8 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="MainPage">
 
-    <Grid>
-        <TextBlock Text="MainPage" FontSize="20"/>
-    </Grid>
+    <StackPanel>
+        <TextBlock x:Name="DownloadTextBlock" Text="Тут текст" FontSize="20" HorizontalAlignment="Center"/>
+        <ProgressBar x:Name="DownloadBar" Minimum="0" Height="57"/>
+    </StackPanel>
 </Page>

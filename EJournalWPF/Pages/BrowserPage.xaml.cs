@@ -67,7 +67,7 @@ namespace EJournalWPF.Pages
             {
                 browser.Dispose();
                 Cef.Shutdown();
-                NavigationService.Navigate(new MainPage());
+                NavigationService.Navigate(new MainPage(cookies));
             });
         }
     }
