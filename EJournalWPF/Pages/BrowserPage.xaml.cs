@@ -28,8 +28,6 @@ namespace EJournalWPF.Pages
     /// </summary>
     public partial class BrowserPage : Page
     {
-        List<Group> Groups = new List<Group>();
-
         public BrowserPage()
         {
             InitializeComponent();

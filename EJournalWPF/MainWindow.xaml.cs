@@ -31,7 +31,6 @@ namespace EJournalWPF
         public MainWindow()
         {
             InitializeComponent();
-            
         }
     }
 }
