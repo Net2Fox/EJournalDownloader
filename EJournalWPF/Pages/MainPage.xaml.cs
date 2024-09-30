@@ -1,10 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,22 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using CefSharp;
-using CefSharp.DevTools.Network;
-using EJournalWPF.Model;
-using EJournalWPF.Windows;
 
-namespace EJournalWPF
+namespace EJournalWPF.Pages
 {
     /// <summary>
-    /// Логика взаимодействия для MainWindow.xaml
+    /// Логика взаимодействия для MainPage.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainPage : Page
     {
-        public MainWindow()
+        public MainPage()
         {
             InitializeComponent();
-            
         }
     }
 }
