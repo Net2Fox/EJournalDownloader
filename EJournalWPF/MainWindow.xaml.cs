@@ -19,7 +19,6 @@ using System.Windows.Shapes;
 using CefSharp;
 using CefSharp.DevTools.Network;
 using EJournalWPF.Model;
-using EJournalWPF.Windows;
 
 namespace EJournalWPF
 {
