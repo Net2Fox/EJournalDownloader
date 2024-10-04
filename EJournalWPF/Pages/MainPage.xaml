@@ -4,12 +4,29 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:EJournalWPF.Pages"
+      xmlns:views="clr-namespace:EJournalWPF.Views"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="MainPage">
 
-    <StackPanel>
-        <TextBlock x:Name="DownloadTextBlock" Text="Тут текст" FontSize="20" HorizontalAlignment="Center"/>
-        <ProgressBar x:Name="DownloadBar" Minimum="0" Height="57"/>
-    </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <ListBox x:Name="EmailListBox" Grid.Row="1" >
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <views:EmailListItemTemplate/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="2">
+            <TextBlock x:Name="DownloadTextBlock" Text="Тут текст" FontSize="20" HorizontalAlignment="Center"/>
+            <ProgressBar x:Name="DownloadBar" Minimum="0" Height="57"/>
+        </StackPanel>
+    </Grid>
+    
+    
 </Page>
