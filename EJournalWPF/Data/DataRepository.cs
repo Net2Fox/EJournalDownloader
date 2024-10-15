@@ -83,9 +83,6 @@ namespace EJournalWPF.Data
 
             // Ждем завершения всех заданий
             await Task.WhenAll(studentTasks);
-
-
-            
         }
 
         internal async Task GetMessages()
