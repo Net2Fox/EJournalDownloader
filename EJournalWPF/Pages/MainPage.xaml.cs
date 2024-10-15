@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using EJournalWPF.Data;
+using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace EJournalWPF.Pages
@@ -8,9 +10,11 @@ namespace EJournalWPF.Pages
     /// </summary>
     public partial class MainPage : Page
     {
-        public MainPage()
+        public MainPage(List<CefSharp.Cookie> cefSharpCookies)
         {
             InitializeComponent();
+            DataRepository.Initialize(cefSharpCookies, UpdateDownloadText, UpdateDownloadProgress, ResetDownloadProgress);
+            var dataRepository = DataRepository.GetInstance();
         }
 
         private void UpdateDownloadText(string message)

@@ -13,6 +13,9 @@ namespace EJournalWPF.Data
 {
     internal class DataRepository
     {
+        private static DataRepository _instance;
+        private static readonly object _lock = new object();
+
         private readonly CookieContainer _cookies;
         private readonly Action<string> _updateDownloadText;
         private readonly Action<int> _updateDownloadProgress;
@@ -21,7 +24,7 @@ namespace EJournalWPF.Data
         private readonly List<Group> _groups;
         private readonly List<Student> _students;
 
-        public DataRepository(List<CefSharp.Cookie> cefSharpCookies, Action<string> updateDownloadText, Action<int> updateDownloadProgress, Action<int> resetDownloadProgress)
+        private DataRepository(List<CefSharp.Cookie> cefSharpCookies, Action<string> updateDownloadText, Action<int> updateDownloadProgress, Action<int> resetDownloadProgress)
         {
             foreach (var cookie in cefSharpCookies)
             {
@@ -129,7 +132,7 @@ namespace EJournalWPF.Data
                         }
                         subDirectory = Regex.Replace(subDirectory, @"[<>:""|?*]", string.Empty);
                         DownloadFile(fileUrl, fileName, subDirectory);
-                        await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.note_read&idsString={message["id"]}", cookies);
+                        await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.note_read&idsString={message["id"]}", _cookies);
                     }
                 }
                 _updateDownloadProgress(1);
@@ -171,7 +174,7 @@ namespace EJournalWPF.Data
                     fileName = $"Работа/{fileName}";
                 }
 
-                if (File.Exists(fileName))
+                if (System.IO.File.Exists(fileName))
                 {
                     return;
                 }
@@ -180,6 +183,29 @@ namespace EJournalWPF.Data
 
                 System.IO.File.WriteAllBytes(fileName, fileBytes);
             }
+        }
+
+        public static void Initialize(List<CefSharp.Cookie> cefSharpCookies, Action<string> updateDownloadText, Action<int> updateDownloadProgress, Action<int> resetDownloadProgress)
+        {
+            if (_instance == null)
+            {
+                lock (_lock)
+                {
+                    if (_instance == null)
+                    {
+                        _instance = new DataRepository(cefSharpCookies, updateDownloadText, updateDownloadProgress, resetDownloadProgress);
+                    }
+                }
+            }
+        }
+        
+        public static DataRepository GetInstance()
+        {
+            if (_instance == null)
+            {
+                throw new InvalidOperationException("DataRepository не был инициализирован. Вызовите Initialize перед первым использованием.");
+            }
+            return _instance;
         }
     }
 }
