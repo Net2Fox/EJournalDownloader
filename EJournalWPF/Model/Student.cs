@@ -16,12 +16,15 @@ namespace EJournalWPF.Model
         // Отчество
         public string MiddleName { get; set; }
 
-        public Student(long id, string firtsName, string lastName, string middleName)
+        public Group Group { get; set; }
+
+        public Student(long id, string firtsName, string lastName, string middleName, Group group)
         {
             this.Id = id;
             this.FirtsName = firtsName;
             this.LastName = lastName;
             this.MiddleName = middleName;
+            this.Group = group;
         }
     }
 }

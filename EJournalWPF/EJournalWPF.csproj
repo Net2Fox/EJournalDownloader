@@ -73,6 +73,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\DataRepository.cs" />
     <Compile Include="Model\File.cs" />
     <Compile Include="Model\Mail.cs" />
     <Compile Include="Pages\BrowserPage.xaml.cs">
