@@ -1,16 +1,5 @@
-﻿using EJournalWPF.Model;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using EJournalWPF.Data;
 
 namespace EJournalWPF.Pages
 {
