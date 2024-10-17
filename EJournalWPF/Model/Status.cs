@@ -9,6 +9,7 @@ namespace EJournalWPF.Model
     internal enum Status
     {
         read,
-        unread
+        unread,
+        all
     }
 }
