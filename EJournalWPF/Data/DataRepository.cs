@@ -82,12 +82,12 @@ namespace EJournalWPF.Data
             {
                 JObject user_list = JObject.Parse(await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_{System.Web.HttpUtility.UrlEncode(group.Name)}%23%23%23%23%23{group.Key}&dep=null", _cookies));
 
-                //_resetDownloadProgress(user_list["user_list"].Count());
+                ResetProgressEvent?.Invoke(user_list["user_list"].Count());
 
                 foreach (var student in user_list["user_list"])
                 {
                     _students.Add(new Student(student["id"].ToObject<long>(), student["firstname"].ToObject<string>(), student["lastname"].ToObject<string>(), student["middlename"].ToObject<string>(), group));
-                    //_updateDownloadProgress(1);
+                    UpdateProgressEvent?.Invoke(1);
                 }
             });
 
