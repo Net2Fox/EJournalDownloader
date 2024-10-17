@@ -8,19 +8,29 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="MainPage">
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <ListBox x:Name="EmailListBox" Grid.Row="1" >
+        <ListBox x:Name="EmailListBox" Grid.Row="1">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <views:EmailListItemTemplate/>
+                    <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+                        <CheckBox x:Name="EmailCheckBox" IsChecked="False" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10,0,0,0">
+                            <TextBlock x:Name="SenderTextBlock" Text="{Binding FromUser.LastName}" FontSize="8"/>
+                            <TextBlock x:Name="SubjectTextBlock" Text="{Binding Subject}" FontSize="16" FontWeight="Bold"/>
+                        </StackPanel>
+                    </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
+            <ListBox.Resources>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Background" Value="LightGray"/>
+                </Style>
+            </ListBox.Resources>
         </ListBox>
         <StackPanel Grid.Row="2">
             <TextBlock x:Name="DownloadTextBlock" Text="Тут текст" FontSize="20" HorizontalAlignment="Center"/>
