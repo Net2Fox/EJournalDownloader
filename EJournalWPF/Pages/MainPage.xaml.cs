@@ -1,5 +1,6 @@
 ﻿using EJournalWPF.Data;
 using EJournalWPF.Model;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,7 +25,7 @@ namespace EJournalWPF.Pages
 
         private void LoadData(List<Mail> mails)
         {
-            EmailListBox.ItemsSource = mails;
+            Application.Current.Dispatcher.Invoke(() => EmailListBox.ItemsSource = mails);
         }
 
         private void UpdateDownloadText(string message)
