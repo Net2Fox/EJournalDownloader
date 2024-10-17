@@ -1,43 +1,29 @@
-# EJournalParser
+# EJournal Desktop
 
-Мини документация по API [Электронного Журнала](https://eljur.ru)
+Для чего и кого эта программа? Для самого себя. Для того, чтобы удобно скачивать большое количество писем от студентов из системы ЭлЖур и автоматически распределять их по папкам. 
 
-Возвращает JSON с 20 письмами
-```url
-https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit=20&offset=0&teacher=21742&status=&companion=&minDate=0
-```
+## Использование
+Скачайте [последнюю версию](https://github.com/Net2Fox/EJournalDesktop/releases/latest), распакуйте и запустите EJournal Desktop.exe.
 
-Возвращает первые 20 непрочитанных писем
-```url
-https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit=20&offset=0&teacher=21742&status=unread&companion=&minDate=0
-```
+## Инструкция для разработчиков
+1. Клонируйте репозиторий:
+   ```
+   git clone https://github.com/Net2Fox/EJournalDesktop.git
+   ```
+2. Откройте проект в Visual Studio 2022.
+3. Соберите и запустите проект.
 
-Помечает сообщение прочитанным
-```url
-https://kip.eljur.ru/journal-api-messages-action?method=messages.note_read&idsString=3202690
-```
+## Документация API
 
-Помечает сообщение непрочитанынм
-```url
-https://kip.eljur.ru/journal-api-messages-action?method=messages.note_unread&idsString=3202690
-```
+Подробную информацию об использовании API можно найти [здесь](API_DOCUMENTATION.md).
 
-Возвращает список отправителей
-```url
-https://kip.eljur.ru/journal-api-messages-action?method=messages.get_senders_list_by_name
-```
+## Используемые библиотеки
 
-Возвращает список получателей
-```url
-https://kip.eljur.ru/journal-api-messages-action?method=messages.get_senders_list_by_name
-```
+Этот проект использует следующие библиотеки с открытым исходным кодом:
 
-Возвращает категории получателей 
-```url
-https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipient_structure
-```
+- **Newtonsoft.Json** - лицензируется под MIT License. См. [Newtonsoft.Json License](https://github.com/JamesNK/Newtonsoft.Json?tab=MIT-1-ov-file#readme).
+- **CefSharp** - лицензируется под BSD License. См. [CefSharp License](https://github.com/cefsharp/CefSharp?tab=License-1-ov-file#readme).
 
-Возвращает список людей в группе
-```url
-https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_3%D0%98%D0%A1%D0%98%D0%9F-122%23%23%23%23%230753a2848830c9e5f25229d379c79c7f&dep=null
-```
+## Лицензия
+Этот проект находится под лицензией MIT. Подробности см. в файле [LICENSE](https://github.com/Net2Fox/EJournalDesktop/blob/v2.0/LICENSE).
+
