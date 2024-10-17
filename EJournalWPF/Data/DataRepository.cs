@@ -17,7 +17,7 @@ namespace EJournalWPF.Data
         private static DataRepository _instance;
         private static readonly object _lock = new object();
 
-        private readonly CookieContainer _cookies;
+        private readonly CookieContainer _cookies = new CookieContainer();
 
         private readonly List<Group> _groups = new List<Group> { };
         private readonly List<Student> _students = new List<Student> { };
@@ -100,11 +100,11 @@ namespace EJournalWPF.Data
             return _students;
         }
 
-        internal async Task GetMailsFromAPI(int limit = 20, int offset = 0, Status status = Status.unread)
+        internal async Task GetMailsFromAPI(int limit = 20, int offset = 0, Status status = Status.all)
         {
             UpdateTextEvent?.Invoke("Получаем список сообщений...");
             _mails.Clear();
-            string apiUrl = $"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset={offset}&teacher=21742&status={status}&companion=&minDate=0";
+            string apiUrl = $"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset={offset}&teacher=21742&status={(status == Status.all ? "" : status.ToString())}&companion=&minDate=0";
             string jsonResponse = await SendRequestAsync(apiUrl, _cookies);
             JObject jsonData = JObject.Parse(jsonResponse);
             ResetProgressEvent?.Invoke(jsonData["list"].Count());
@@ -127,7 +127,7 @@ namespace EJournalWPF.Data
                     (
                         message["id"].ToObject<long>(),
                         message["msg_date"].ToObject<DateTime>(),
-                        message["subject"].ToObject<String>(),
+                        message["subject"].ToObject<string>(),
                         _students.Find(s => s.Id == fromUserId),
                         message["status"].ToObject<Status>(),
                         files
@@ -139,13 +139,14 @@ namespace EJournalWPF.Data
                     (
                         message["id"].ToObject<long>(),
                         message["msg_date"].ToObject<DateTime>(),
-                        message["subject"].ToObject<String>(),
+                        message["subject"].ToObject<string>(),
                         _students.Find(s => s.Id == fromUserId),
                         message["status"].ToObject<Status>()
                     ));
                 }
             }
             UpdateTextEvent?.Invoke("Список писем успешно получен!");
+            LoadDataSuccessEvent?.Invoke(_mails);
         }
 
         internal List<Mail> GetMails()
