@@ -83,6 +83,7 @@
     <Compile Include="Data\DataRepository.cs" />
     <Compile Include="Model\File.cs" />
     <Compile Include="Model\Mail.cs" />
+    <Compile Include="Model\Status.cs" />
     <Compile Include="Pages\BrowserPage.xaml.cs">
       <DependentUpon>BrowserPage.xaml</DependentUpon>
     </Compile>

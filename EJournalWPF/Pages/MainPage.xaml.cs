@@ -1,4 +1,5 @@
 ﻿using EJournalWPF.Data;
+using EJournalWPF.Model;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,8 +14,17 @@ namespace EJournalWPF.Pages
         public MainPage(List<CefSharp.Cookie> cefSharpCookies)
         {
             InitializeComponent();
-            DataRepository.Initialize(cefSharpCookies, UpdateDownloadText, UpdateDownloadProgress, ResetDownloadProgress);
+            DataRepository.Initialize(cefSharpCookies);
             var dataRepository = DataRepository.GetInstance();
+            dataRepository.LoadDataSuccessEvent += LoadData;
+            dataRepository.UpdateProgressEvent += UpdateDownloadProgress;
+            dataRepository.UpdateTextEvent += UpdateDownloadText;
+            dataRepository.ResetProgressEvent += ResetDownloadProgress;
+        }
+
+        private void LoadData(List<Mail> mails)
+        {
+            EmailListBox.ItemsSource = mails;
         }
 
         private void UpdateDownloadText(string message)
