@@ -20,9 +20,6 @@ namespace EJournalWPF.Pages
             DataRepository.Initialize(cefSharpCookies);
             var dataRepository = DataRepository.GetInstance();
             dataRepository.LoadDataSuccessEvent += LoadData;
-            dataRepository.UpdateProgressEvent += UpdateDownloadProgress;
-            dataRepository.UpdateTextEvent += UpdateDownloadText;
-            dataRepository.ResetProgressEvent += ResetDownloadProgress;
         }
 
         private void LoadData(List<Mail> mails)
@@ -30,25 +27,6 @@ namespace EJournalWPF.Pages
             Application.Current.Dispatcher.Invoke(() => {
                 EmailListBox.ItemsSource = mails;
                 isDataLoaded = true;
-            });
-        }
-
-        private void UpdateDownloadText(string message)
-        {
-            Application.Current.Dispatcher.Invoke(() => DownloadTextBlock.Text = message);
-        }
-
-        private void UpdateDownloadProgress(int value)
-        {
-
-            Application.Current.Dispatcher.Invoke(() => DownloadBar.Value += value);
-        }
-
-        private void ResetDownloadProgress(int maximum)
-        {
-            Application.Current.Dispatcher.Invoke(() => {
-                DownloadBar.Value = 0;
-                DownloadBar.Maximum = maximum;
             });
         }
 
@@ -90,7 +68,7 @@ namespace EJournalWPF.Pages
             }
         }
 
-        private void OffsetTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void CountTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
 
         }
@@ -103,6 +81,38 @@ namespace EJournalWPF.Pages
         private void ForwardButton_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (SearchTextBox.Text == "Поиск")
+            {
+                SearchTextBox.Text = string.Empty;
+            }
+        }
+
+        private void CountTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (CountTextBox.Text == "Количество писем (по умолчанию 20)")
+            {
+                CountTextBox.Text = string.Empty;
+            }
+        }
+
+        private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (SearchTextBox.Text == string.Empty)
+            {
+                SearchTextBox.Text = "Поиск";
+            }
+        }
+
+        private void CountTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (CountTextBox.Text == string.Empty)
+            {
+                CountTextBox.Text = "Количество писем (по умолчанию 20)";
+            }
         }
     }
 }
