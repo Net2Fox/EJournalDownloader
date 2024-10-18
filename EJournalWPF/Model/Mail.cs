@@ -1,6 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using EJournalWPF.Data;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.Serialization;
 
 namespace EJournalWPF.Model
 {
@@ -16,7 +20,7 @@ namespace EJournalWPF.Model
         [JsonProperty("subject")]
         public string Subject { get; set; }
 
-        [JsonProperty("from_user")]
+        //[JsonProperty("from_user")]
         public Student FromUser { get; set; }
 
         [JsonProperty("status")]
@@ -26,28 +30,25 @@ namespace EJournalWPF.Model
         public List<File> Files { get; set; }
 
         [JsonProperty("hasFiles")]
-        public bool hasFiles { get; set; }
+        public bool HasFiles { get; set; }
 
-        public Mail(long id, DateTime date, string subject, Student fromUser, Status status, List<File> files)
+        [JsonExtensionData]
+        private IDictionary<string, JToken> _additionalData;
+
+        public Mail(long id, DateTime date, string subject, Status status, List<File> files, bool hasFiles)
         {
             this.ID = id;
             this.Date = date;
             this.Subject = subject;
-            this.FromUser = fromUser;
             this.Status = status;
             this.Files = files;
-            hasFiles = true;
+            this.HasFiles = true;
         }
 
-        public Mail(long id, DateTime date, string subject, Student fromUser, Status status)
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
         {
-            this.ID = id;
-            this.Date = date;
-            this.Subject = subject;
-            this.FromUser = fromUser;
-            this.Status = status;
-            hasFiles = false;
-            Files = null;
+            FromUser = DataRepository.GetInstance().GetStudents().Find(s => s.Id == _additionalData["from_user"].ToObject<long>());
         }
     }
 }
