@@ -34,6 +34,9 @@ namespace EJournalWPF.Data
         internal delegate void BeginDataLoadingHandler();
         internal event BeginDataLoadingHandler BeginDataLoadingEvent;
 
+        internal delegate void DataLoadingErrorHandler(string errorMsg);
+        internal event DataLoadingErrorHandler DataLoadingErrorEvent;
+
         private DataRepository(List<CefSharp.Cookie> cefSharpCookies)
         {
             foreach (var cookie in cefSharpCookies)
@@ -50,22 +53,29 @@ namespace EJournalWPF.Data
 
         internal async Task GetStudentsFromAPI()
         {
-            JObject recipient_structure = JObject.Parse(await SendRequestAsync("https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipient_structure", _cookies));
-            _groups = JsonConvert.DeserializeObject<List<Group>>(recipient_structure["structure"][0]["data"][5]["data"].ToString());
-
-            _students = new List<Student>();
-            var studentTasks = _groups.Select(async group =>
+            try
             {
-                JObject requset = JObject.Parse(await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_{System.Web.HttpUtility.UrlEncode(group.Name)}%23%23%23%23%23{group.Key}&dep=null", _cookies));
-                List<Student> students = JsonConvert.DeserializeObject<List<Student>>(requset["user_list"].ToString());
-                foreach (var student in students)
-                {
-                    student.Group = group;
-                }
-                _students.AddRange(students);
-            });
+                JObject recipient_structure = JObject.Parse(await SendRequestAsync("https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipient_structure", _cookies));
+                _groups = JsonConvert.DeserializeObject<List<Group>>(recipient_structure["structure"][0]["data"][5]["data"].ToString());
 
-            await Task.WhenAll(studentTasks);
+                _students = new List<Student>();
+                var studentTasks = _groups.Select(async group =>
+                {
+                    JObject requset = JObject.Parse(await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_{System.Web.HttpUtility.UrlEncode(group.Name)}%23%23%23%23%23{group.Key}&dep=null", _cookies));
+                    List<Student> students = JsonConvert.DeserializeObject<List<Student>>(requset["user_list"].ToString());
+                    foreach (var student in students)
+                    {
+                        student.Group = group;
+                    }
+                    _students.AddRange(students);
+                });
+
+                await Task.WhenAll(studentTasks);
+            }
+            catch (Exception ex)
+            {
+                DataLoadingErrorEvent?.Invoke(ex.Message);
+            }
         }
 
         internal List<Student> GetStudents()
@@ -75,12 +85,19 @@ namespace EJournalWPF.Data
 
         internal async Task GetMailsFromAPI(int limit = 20, int offset = 0, Status status = Status.all)
         {
-            BeginDataLoadingEvent?.Invoke();
-            string jsonResponse = await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset={offset}&teacher=21742&status={(status == Status.all ? "" : status.ToString())}&companion=&minDate=0", _cookies);
-            JObject jsonData = JObject.Parse(jsonResponse);
-            _mails = JsonConvert.DeserializeObject<List<Mail>>(jsonData["list"].ToString());
-            _mails = _mails.Where(m => m.FromUser != null).ToList();
-            LoadDataSuccessEvent?.Invoke(_mails);
+            try
+            {
+                BeginDataLoadingEvent?.Invoke();
+                string jsonResponse = await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset={offset}&teacher=21742&status={(status == Status.all ? "" : status.ToString())}&companion=&minDate=0", _cookies);
+                JObject jsonData = JObject.Parse(jsonResponse);
+                _mails = JsonConvert.DeserializeObject<List<Mail>>(jsonData["list"].ToString());
+                _mails = _mails.Where(m => m.FromUser != null).ToList();
+                LoadDataSuccessEvent?.Invoke(_mails);
+            }
+            catch (Exception ex)
+            {
+                DataLoadingErrorEvent?.Invoke(ex.Message);
+            }
         }
 
         internal List<Mail> GetMails()
