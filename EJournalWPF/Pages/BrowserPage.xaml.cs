@@ -21,6 +21,10 @@ namespace EJournalWPF.Pages
                 {
                     await HandleCookiesAsync();
                 }
+                else if (e.Frame.Url == "https://kip.eljur.ru/")
+                {
+                    await HandleCookiesAsync();
+                }
             };
         }
 
@@ -28,8 +32,8 @@ namespace EJournalWPF.Pages
         {
             var cookieManager = Cef.GetGlobalCookieManager();
 
-            var result = await cookieManager.VisitUrlCookiesAsync("https://kip.eljur.ru/", includeHttpOnly: false);
-            var cookieCount = result.Count;
+            //var result = await cookieManager.VisitUrlCookiesAsync("https://kip.eljur.ru/", includeHttpOnly: false);
+            //var cookieCount = result.Count;
 
             await cookieManager.VisitUrlCookiesAsync("https://kip.eljur.ru/", includeHttpOnly: true).ContinueWith(t =>
             {
