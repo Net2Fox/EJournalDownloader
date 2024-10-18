@@ -32,6 +32,7 @@ namespace EJournalWPF.Pages
                 EmailListBox.ItemsSource = mails;
                 Filter();
                 isDataLoaded = true;
+                LoadingSplashPanel.Visibility = Visibility.Collapsed;
             });
         }
 
