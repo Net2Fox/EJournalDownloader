@@ -1,4 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace EJournalWPF
 {
@@ -14,7 +18,7 @@ namespace EJournalWPF
         public Group(string name, string key) 
         {
             this.Name = name;
-            this.Key = key;
+            this.Key = key.Split(new[] { "#####" }, StringSplitOptions.RemoveEmptyEntries)[1];
         }
     }
 }
