@@ -10,11 +10,22 @@
       Title="MainPage">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
-        <ListBox x:Name="EmailListBox" Grid.Row="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="150"/>
+        </Grid.ColumnDefinitions>
+        <ComboBox x:Name="StatusComboBox" Grid.Row="0" SelectedIndex="0" SelectionChanged="StatusComboBox_SelectionChanged" VerticalContentAlignment="Center" FontSize="16">
+            <ComboBoxItem>Все</ComboBoxItem>
+            <ComboBoxItem>Непрочитанные</ComboBoxItem>
+            <ComboBoxItem>Прочитанные</ComboBoxItem>
+        </ComboBox>
+        <TextBox x:Name="SearchTextBox" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="SearchTextBox_TextChanged" VerticalContentAlignment="Center" FontSize="14"/>
+        <ListBox x:Name="EmailListBox" Grid.Row="1" Grid.ColumnSpan="3">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
@@ -32,7 +43,7 @@
                 </Style>
             </ListBox.Resources>
         </ListBox>
-        <StackPanel Grid.Row="2">
+        <StackPanel Grid.Row="2"  Grid.ColumnSpan="3">
             <TextBlock x:Name="DownloadTextBlock" Text="Тут текст" FontSize="20" HorizontalAlignment="Center"/>
             <ProgressBar x:Name="DownloadBar" Minimum="0" Height="57"/>
         </StackPanel>
