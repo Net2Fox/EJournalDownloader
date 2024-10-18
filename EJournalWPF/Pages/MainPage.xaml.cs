@@ -70,17 +70,17 @@ namespace EJournalWPF.Pages
 
         private void CountTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-
+            // TODO: Менять limit
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-
+            // TODO: Перемещаться назад offset-limit(n) пока offset != 0
         }
 
         private void ForwardButton_Click(object sender, RoutedEventArgs e)
         {
-
+            // TODO: Перемещаться вперёд, offset+limit(n)
         }
 
         private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
