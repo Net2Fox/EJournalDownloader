@@ -40,6 +40,9 @@ namespace EJournalWPF.Data
         internal delegate void ResetProgressHandler(int maximum);
         internal event ResetProgressHandler ResetProgressEvent;
 
+        internal delegate void BeginDataLoadingHandler();
+        internal event BeginDataLoadingHandler BeginDataLoadingEvent;
+
         private DataRepository(List<CefSharp.Cookie> cefSharpCookies)
         {
             foreach (var cookie in cefSharpCookies)
@@ -83,6 +86,7 @@ namespace EJournalWPF.Data
 
         internal async Task GetMailsFromAPI(int limit = 20, int offset = 0, Status status = Status.all)
         {
+            BeginDataLoadingEvent?.Invoke();
             UpdateTextEvent?.Invoke("Получаем список сообщений...");
             string jsonResponse = await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset={offset}&teacher=21742&status={(status == Status.all ? "" : status.ToString())}&companion=&minDate=0", _cookies);
             JObject jsonData = JObject.Parse(jsonResponse);
