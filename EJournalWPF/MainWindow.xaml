@@ -5,6 +5,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EJournalWPF" 
         mc:Ignorable="d"
-        Title="EJournal" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+        Title="EJournal Desktop" Height="450" Width="800" WindowStartupLocation="CenterScreen">
     <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" Source="Pages/BrowserPage.xaml"/>
 </Window>
