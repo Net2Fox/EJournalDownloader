@@ -31,15 +31,6 @@ namespace EJournalWPF.Data
         internal delegate void LoadDataSuccessHandler(List<Mail> mails);
         internal event LoadDataSuccessHandler LoadDataSuccessEvent;
 
-        internal delegate void UpdateTextHandler(string message);
-        internal event UpdateTextHandler UpdateTextEvent;
-
-        internal delegate void UpdateProgressHandler(int prgoress);
-        internal event UpdateProgressHandler UpdateProgressEvent;
-
-        internal delegate void ResetProgressHandler(int maximum);
-        internal event ResetProgressHandler ResetProgressEvent;
-
         internal delegate void BeginDataLoadingHandler();
         internal event BeginDataLoadingHandler BeginDataLoadingEvent;
 
@@ -59,12 +50,10 @@ namespace EJournalWPF.Data
 
         internal async Task GetStudentsFromAPI()
         {
-            UpdateTextEvent?.Invoke("Получаем список групп...");
             JObject recipient_structure = JObject.Parse(await SendRequestAsync("https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipient_structure", _cookies));
             _groups = JsonConvert.DeserializeObject<List<Group>>(recipient_structure["structure"][0]["data"][5]["data"].ToString());
 
             _students = new List<Student>();
-            UpdateTextEvent?.Invoke("Получаем список студентов...");
             var studentTasks = _groups.Select(async group =>
             {
                 JObject requset = JObject.Parse(await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_{System.Web.HttpUtility.UrlEncode(group.Name)}%23%23%23%23%23{group.Key}&dep=null", _cookies));
@@ -87,12 +76,10 @@ namespace EJournalWPF.Data
         internal async Task GetMailsFromAPI(int limit = 20, int offset = 0, Status status = Status.all)
         {
             BeginDataLoadingEvent?.Invoke();
-            UpdateTextEvent?.Invoke("Получаем список сообщений...");
             string jsonResponse = await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset={offset}&teacher=21742&status={(status == Status.all ? "" : status.ToString())}&companion=&minDate=0", _cookies);
             JObject jsonData = JObject.Parse(jsonResponse);
             _mails = JsonConvert.DeserializeObject<List<Mail>>(jsonData["list"].ToString());
             _mails = _mails.Where(m => m.FromUser != null).ToList();
-            UpdateTextEvent?.Invoke("Список писем успешно получен!");
             LoadDataSuccessEvent?.Invoke(_mails);
         }
 

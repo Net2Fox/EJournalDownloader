@@ -24,6 +24,7 @@ namespace EJournalWPF.Pages
             DataRepository.Initialize(cefSharpCookies);
             repository = DataRepository.GetInstance();
             repository.LoadDataSuccessEvent += LoadData;
+            repository.BeginDataLoadingEvent += DataLoadingProgress;
         }
 
         private void LoadData(List<Mail> mails)
@@ -33,6 +34,13 @@ namespace EJournalWPF.Pages
                 Filter();
                 isDataLoaded = true;
                 LoadingSplashPanel.Visibility = Visibility.Collapsed;
+            });
+        }
+
+        private void DataLoadingProgress()
+        {
+            Application.Current.Dispatcher.Invoke(() => {
+                LoadingSplashPanel.Visibility = Visibility.Visible;
             });
         }
 
