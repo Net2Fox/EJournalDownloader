@@ -25,7 +25,7 @@
             <ComboBoxItem>Прочитанные</ComboBoxItem>
         </ComboBox>
         <TextBox x:Name="SearchTextBox" Text="Поиск" Grid.Row="0" Grid.Column="1" TextChanged="SearchTextBox_TextChanged" GotFocus="SearchTextBox_GotFocus" VerticalContentAlignment="Center" LostFocus="SearchTextBox_LostFocus" FontSize="14"/>
-        <TextBox x:Name="CountTextBox" Text="Количество писем (по умолчанию 20)" FontSize="14" VerticalContentAlignment="Center" GotFocus="CountTextBox_GotFocus" TextChanged="CountTextBox_TextChanged" LostFocus="CountTextBox_LostFocus" Grid.Row="0" Grid.Column="2"/>
+        <TextBox x:Name="CountTextBox" Text="Количество писем (по умолчанию 20)" FontSize="14" VerticalContentAlignment="Center" GotFocus="CountTextBox_GotFocus" TextChanged="CountTextBox_TextChanged" LostFocus="CountTextBox_LostFocus" Grid.Row="0" Grid.Column="2" KeyUp="CountTextBox_KeyUp"/>
             <ListBox x:Name="EmailListBox" Grid.Row="1" Grid.ColumnSpan="3">
             <ListBox.ItemTemplate>
                 <DataTemplate>

@@ -39,7 +39,7 @@ namespace EJournalWPF.Pages
         {
             List<Mail> filteredList = repository.GetMails();
 
-            if (SearchTextBox.Text != String.Empty)
+            if (SearchTextBox.Text != string.Empty && SearchTextBox.Text != "Поиск")
             {
                 string text = SearchTextBox.Text.ToLower();
                 filteredList = filteredList.Where(m =>
@@ -70,15 +70,6 @@ namespace EJournalWPF.Pages
             if (isDataLoaded == true)
             {
                 Filter();
-            }
-        }
-
-        private async void CountTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            // TODO: Менять limit
-            if (int.TryParse(CountTextBox.Text, out limit))
-            {
-                await repository.GetMailsFromAPI(limit);
             }
         }
 
@@ -121,6 +112,14 @@ namespace EJournalWPF.Pages
             if (CountTextBox.Text == string.Empty)
             {
                 CountTextBox.Text = "Количество писем (по умолчанию 20)";
+            }
+        }
+
+        private async void CountTextBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter && isDataLoaded && int.TryParse(CountTextBox.Text, out limit))
+            {
+                await repository.GetMailsFromAPI(limit);
             }
         }
     }
