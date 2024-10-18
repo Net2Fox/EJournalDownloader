@@ -14,25 +14,30 @@ namespace EJournalWPF.Pages
     public partial class MainPage : Page
     {
         private bool isDataLoaded = false;
+        private int limit = 20;
+        private int offset = 0;
+        private DataRepository repository;
+
         public MainPage(List<CefSharp.Cookie> cefSharpCookies)
         {
             InitializeComponent();
             DataRepository.Initialize(cefSharpCookies);
-            var dataRepository = DataRepository.GetInstance();
-            dataRepository.LoadDataSuccessEvent += LoadData;
+            repository = DataRepository.GetInstance();
+            repository.LoadDataSuccessEvent += LoadData;
         }
 
         private void LoadData(List<Mail> mails)
         {
             Application.Current.Dispatcher.Invoke(() => {
                 EmailListBox.ItemsSource = mails;
+                Filter();
                 isDataLoaded = true;
             });
         }
 
         private void Filter()
         {
-            List<Mail> filteredList = DataRepository.GetInstance().GetMails();
+            List<Mail> filteredList = repository.GetMails();
 
             if (SearchTextBox.Text != String.Empty)
             {
@@ -68,9 +73,13 @@ namespace EJournalWPF.Pages
             }
         }
 
-        private void CountTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void CountTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             // TODO: Менять limit
+            if (int.TryParse(CountTextBox.Text, out limit))
+            {
+                await repository.GetMailsFromAPI(limit);
+            }
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
