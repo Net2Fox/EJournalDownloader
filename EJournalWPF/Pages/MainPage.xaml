@@ -55,7 +55,7 @@
             <DockPanel.Background>
                 <SolidColorBrush Color="Gray" Opacity="0.9"/>
             </DockPanel.Background>
-            <TextBlock Text="Загрузка данных, пожалуйста, подождите..." FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="LoadingTextBlock" Text="Загрузка данных, пожалуйста, подождите..." FontSize="30" VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </DockPanel>
     </Grid>
 </Page>

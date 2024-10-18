@@ -25,6 +25,15 @@ namespace EJournalWPF.Pages
             repository = DataRepository.GetInstance();
             repository.LoadDataSuccessEvent += LoadData;
             repository.BeginDataLoadingEvent += DataLoadingProgress;
+            repository.DataLoadingErrorEvent += DataLoadingErrorEvent;
+        }
+
+        private void DataLoadingErrorEvent(string errorMsg)
+        {
+            Application.Current.Dispatcher.Invoke(() => {
+                LoadingSplashPanel.Visibility = Visibility.Visible;
+                LoadingTextBlock.Text = errorMsg;
+            });
         }
 
         private void LoadData(List<Mail> mails)
@@ -40,6 +49,7 @@ namespace EJournalWPF.Pages
         private void DataLoadingProgress()
         {
             Application.Current.Dispatcher.Invoke(() => {
+                LoadingTextBlock.Text = "Загрузка данных, пожалуйста, подождите...";
                 LoadingSplashPanel.Visibility = Visibility.Visible;
             });
         }
