@@ -11,8 +11,8 @@ namespace EJournalWPF.Model
     [JsonConverter(typeof(StringEnumConverter))]
     internal enum Status
     {
-        read,
+        all,
         unread,
-        all
+        read
     }
 }
