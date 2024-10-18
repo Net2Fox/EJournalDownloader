@@ -1,5 +1,6 @@
 ﻿using EJournalWPF.Model;
 using EJournalWPF.Pages;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -19,9 +20,13 @@ namespace EJournalWPF.Data
 
         private readonly CookieContainer _cookies = new CookieContainer();
 
-        private readonly List<Group> _groups = new List<Group> { };
-        private readonly List<Student> _students = new List<Student> { };
-        private readonly List<Mail> _mails = new List<Mail> { };
+        private List<Group> _groups;
+        private List<Student> _students;
+        private List<Mail> _mails;
+
+        public List<Group> Groups { get { return _groups; } }
+        public List<Student> Students { get { return _students; } }
+        public List<Mail> Mails { get { return _mails; } }
 
         internal delegate void LoadDataSuccessHandler(List<Mail> mails);
         internal event LoadDataSuccessHandler LoadDataSuccessEvent;
@@ -51,47 +56,23 @@ namespace EJournalWPF.Data
 
         internal async Task GetStudentsFromAPI()
         {
-            _groups.Clear();
-            // Получаем список групп
             UpdateTextEvent?.Invoke("Получаем список групп...");
             JObject recipient_structure = JObject.Parse(await SendRequestAsync("https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipient_structure", _cookies));
-            ResetProgressEvent?.Invoke(recipient_structure["structure"].Count());
+            _groups = JsonConvert.DeserializeObject<List<Group>>(recipient_structure["structure"][0]["data"][5]["data"].ToString());
 
-            foreach (var structure in recipient_structure["structure"])
-            {
-                if (structure["key"].ToObject<string>() == "school")
-                {
-                    foreach (var data in structure["data"])
-                    {
-                        if (data["key"].ToObject<string>() == "students")
-                        {
-                            foreach (var group in data["data"])
-                            {
-                                _groups.Add(new Group(group["name"].ToObject<string>(), group["key"].ToObject<string>().Split(new[] { "#####" }, StringSplitOptions.RemoveEmptyEntries)[1]));
-                                UpdateProgressEvent?.Invoke(1);
-                            }
-                        }
-                    }
-                }
-            }
+            _students = new List<Student>();
             UpdateTextEvent?.Invoke("Получаем список студентов...");
-
-            // Получаем список студентов
-            _students.Clear();
             var studentTasks = _groups.Select(async group =>
             {
-                JObject user_list = JObject.Parse(await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_{System.Web.HttpUtility.UrlEncode(group.Name)}%23%23%23%23%23{group.Key}&dep=null", _cookies));
-
-                ResetProgressEvent?.Invoke(user_list["user_list"].Count());
-
-                foreach (var student in user_list["user_list"])
+                JObject requset = JObject.Parse(await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_{System.Web.HttpUtility.UrlEncode(group.Name)}%23%23%23%23%23{group.Key}&dep=null", _cookies));
+                List<Student> students = JsonConvert.DeserializeObject<List<Student>>(requset["user_list"].ToString());
+                foreach (var student in students)
                 {
-                    _students.Add(new Student(student["id"].ToObject<long>(), student["firstname"].ToObject<string>(), student["lastname"].ToObject<string>(), student["middlename"].ToObject<string>(), group));
-                    UpdateProgressEvent?.Invoke(1);
+                    student.Group = group;
                 }
+                _students.AddRange(students);
             });
 
-            // Ждем завершения всех заданий
             await Task.WhenAll(studentTasks);
         }
 
@@ -103,47 +84,15 @@ namespace EJournalWPF.Data
         internal async Task GetMailsFromAPI(int limit = 20, int offset = 0, Status status = Status.all)
         {
             UpdateTextEvent?.Invoke("Получаем список сообщений...");
-            _mails.Clear();
-            string apiUrl = $"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset={offset}&teacher=21742&status={(status == Status.all ? "" : status.ToString())}&companion=&minDate=0";
-            string jsonResponse = await SendRequestAsync(apiUrl, _cookies);
+            string jsonResponse = await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset={offset}&teacher=21742&status={(status == Status.all ? "" : status.ToString())}&companion=&minDate=0", _cookies);
             JObject jsonData = JObject.Parse(jsonResponse);
-            ResetProgressEvent?.Invoke(jsonData["list"].Count());
-            foreach (var message in jsonData["list"])
+            try
             {
-                long fromUserId = message["from_user"].ToObject<long>();
-                if (message["hasFiles"].ToObject<bool>() == true)
-                {
-                    List<Model.File> files = new List<Model.File>();
-                    foreach (var file in message["files"])
-                    {
-                        files.Add(new Model.File
-                        (
-                            file["id"].ToObject<long>(),
-                            file["filename"].ToObject<string>(),
-                            file["url"].ToObject<string>()
-                        ));
-                    }
-                    _mails.Add(new Mail
-                    (
-                        message["id"].ToObject<long>(),
-                        message["msg_date"].ToObject<DateTime>(),
-                        message["subject"].ToObject<string>(),
-                        _students.Find(s => s.Id == fromUserId),
-                        message["status"].ToObject<Status>(),
-                        files
-                    ));
-                }
-                else
-                {
-                    _mails.Add(new Mail
-                    (
-                        message["id"].ToObject<long>(),
-                        message["msg_date"].ToObject<DateTime>(),
-                        message["subject"].ToObject<string>(),
-                        _students.Find(s => s.Id == fromUserId),
-                        message["status"].ToObject<Status>()
-                    ));
-                }
+                _mails = JsonConvert.DeserializeObject<List<Mail>>(jsonData["list"].ToString());
+            }
+            catch (Exception ex)
+            {
+                UpdateTextEvent?.Invoke(ex.Message);
             }
             UpdateTextEvent?.Invoke("Список писем успешно получен!");
             LoadDataSuccessEvent?.Invoke(_mails);
@@ -152,58 +101,6 @@ namespace EJournalWPF.Data
         internal List<Mail> GetMails()
         {
             return _mails;
-        }
-
-        internal async Task DownloadMessages(List<Mail> mailsToDownload)
-        {
-            foreach (var group in _groups)
-            {
-                JObject user_list = JObject.Parse(await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_recipients_list&key1=school&key2=students&key3=2024%2F2025_1_{System.Web.HttpUtility.UrlEncode(group.Name)}%23%23%23%23%23{group.Key}&dep=null", _cookies));
-
-                ResetProgressEvent?.Invoke(user_list["user_list"].Count());
-
-                foreach (var student in user_list["user_list"])
-                {
-                    _students.Add(new Student(student["id"].ToObject<long>(), student["firstname"].ToObject<string>(), student["lastname"].ToObject<string>(), student["middlename"].ToObject<string>(), group));
-                    UpdateProgressEvent?.Invoke(1);
-
-                }
-            }
-
-            UpdateTextEvent?.Invoke("Получаем список сообщений...");
-
-            int limit = 150;
-            string apiUrl = $"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset=0&teacher=21742&status=unread&companion=&minDate=0";
-            string jsonResponse = await SendRequestAsync(apiUrl, _cookies);
-            JObject jsonData = JObject.Parse(jsonResponse);
-            ResetProgressEvent?.Invoke(jsonData["list"].Count());
-            foreach (var message in jsonData["list"])
-            {
-                if (message["hasFiles"].ToObject<bool>())
-                {
-                    foreach (var file in message["files"])
-                    {
-                        string fileUrl = file["url"].ToString();
-                        string fileName = file["filename"].ToString();
-                        string subDirectory = null;
-                        long studentId = message["from_user"].ToObject<long>();
-                        var student = _students.Find(s => s.Id == studentId);
-                        if (student != null)
-                        {
-                            subDirectory = $"{student.Group.Name}/{student.LastName.Replace(" ", "")} {student.FirtsName.Replace(" ", "")}";
-                        }
-                        if (message["files"].Count() > 1)
-                        {
-                            subDirectory = $"{subDirectory}/{message["subject"].ToObject<string>()}";
-                        }
-                        subDirectory = Regex.Replace(subDirectory, @"[<>:""|?*]", string.Empty);
-                        DownloadFile(fileUrl, fileName, subDirectory);
-                        await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.note_read&idsString={message["id"]}", _cookies);
-                    }
-                }
-                UpdateProgressEvent?.Invoke(1);
-            }
-            UpdateTextEvent?.Invoke("Все файлы успешно скачаны!");
         }
 
         internal async Task<string> SendRequestAsync(string url, CookieContainer cookies)
