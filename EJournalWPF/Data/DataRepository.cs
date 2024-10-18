@@ -86,14 +86,8 @@ namespace EJournalWPF.Data
             UpdateTextEvent?.Invoke("Получаем список сообщений...");
             string jsonResponse = await SendRequestAsync($"https://kip.eljur.ru/journal-api-messages-action?method=messages.get_list&category=inbox&search=&limit={limit}&offset={offset}&teacher=21742&status={(status == Status.all ? "" : status.ToString())}&companion=&minDate=0", _cookies);
             JObject jsonData = JObject.Parse(jsonResponse);
-            try
-            {
-                _mails = JsonConvert.DeserializeObject<List<Mail>>(jsonData["list"].ToString());
-            }
-            catch (Exception ex)
-            {
-                UpdateTextEvent?.Invoke(ex.Message);
-            }
+            _mails = JsonConvert.DeserializeObject<List<Mail>>(jsonData["list"].ToString());
+            _mails = _mails.Where(m => m.FromUser != null).ToList();
             UpdateTextEvent?.Invoke("Список писем успешно получен!");
             LoadDataSuccessEvent?.Invoke(_mails);
         }
