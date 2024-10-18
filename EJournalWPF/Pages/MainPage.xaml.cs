@@ -89,5 +89,20 @@ namespace EJournalWPF.Pages
                 Filter();
             }
         }
+
+        private void OffsetTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ForwardButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

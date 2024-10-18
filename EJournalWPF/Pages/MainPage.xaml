@@ -12,7 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="150"/>
@@ -24,8 +24,9 @@
             <ComboBoxItem>Непрочитанные</ComboBoxItem>
             <ComboBoxItem>Прочитанные</ComboBoxItem>
         </ComboBox>
-        <TextBox x:Name="SearchTextBox" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="SearchTextBox_TextChanged" VerticalContentAlignment="Center" FontSize="14"/>
-        <ListBox x:Name="EmailListBox" Grid.Row="1" Grid.ColumnSpan="3">
+        <TextBox x:Name="SearchTextBox" Text="Поиск" Grid.Row="0" Grid.Column="1" TextChanged="SearchTextBox_TextChanged" VerticalContentAlignment="Center" FontSize="14"/>
+        <TextBox x:Name="CountTextBox" Text="Количество писем (по умолчанию 20)" FontSize="14" VerticalContentAlignment="Center" TextChanged="OffsetTextBox_TextChanged" Grid.Row="0" Grid.Column="2"/>
+            <ListBox x:Name="EmailListBox" Grid.Row="1" Grid.ColumnSpan="3">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
@@ -43,11 +44,11 @@
                 </Style>
             </ListBox.Resources>
         </ListBox>
-        <StackPanel Grid.Row="2"  Grid.ColumnSpan="3">
-            <TextBlock x:Name="DownloadTextBlock" Text="Тут текст" FontSize="20" HorizontalAlignment="Center"/>
-            <ProgressBar x:Name="DownloadBar" Minimum="0" Height="57"/>
+        <Button x:Name="SelectAllButton" Grid.Column="0" Grid.Row="2" Content="Выбрать всё" FontSize="14"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center">
+            <Button x:Name="BackButton" Content="Назад" Width="70" FontSize="14" Click="BackButton_Click"/>
+            <Button x:Name="ForwardButton" Content="Вперёд" Margin="50,0,0,0" Width="70" FontSize="14" Click="ForwardButton_Click"/>
         </StackPanel>
+        <Button x:Name="DownloadButton" Grid.Column="2" Grid.Row="2" Content="Скачать" FontSize="14"/>
     </Grid>
-    
-    
 </Page>
